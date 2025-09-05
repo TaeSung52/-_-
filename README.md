@@ -16,68 +16,9 @@
 > **주의**: 본 리포지토리는 *재현용 코드/구조*와 *보고서 양식*을 제공합니다. 외부 원천 데이터는 용량/저작권 이슈로 포함하지 않으며,
 > 스크립트를 통해 사용자가 직접 다운로드/경로 지정하도록 구성합니다. 문서의 수치·결과는 **사용자 제공 요약**을 반영합니다.
 
-### 미리보기 배지
+### 환경/모델/툴
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![pandas](https://img.shields.io/badge/pandas-EDA-informational) ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange) ![XGBoost](https://img.shields.io/badge/XGBoost-classifier-critical) ![Surprise](https://img.shields.io/badge/Surprise-Recommender-success) ![Selenium](https://img.shields.io/badge/Selenium-crawling-lightgrey) ![GeoPandas](https://img.shields.io/badge/GeoPandas-Geo-green) ![Folium](https://img.shields.io/badge/Folium-map-brightgreen)
-
-### 디렉토리 구조
-
-```text
-repo-root/
-├─ README.md                       # 루트 개요
-├─ requirements.txt                # 공통 의존성
-├─ data/                           # (예시 경로) 원천/중간/결과 데이터
-│  ├─ netflix/
-│  ├─ kurly/
-│  └─ ooh/
-├─ notebooks/
-│  ├─ netflix/
-│  ├─ kurly/
-│  └─ ooh/
-├─ projects/
-│  ├─ netflix-churn/
-│  │  ├─ README.md
-│  │  ├─ src/
-│  │  └─ assets/
-│  ├─ kurly-lifestyle-beauty/
-│  │  ├─ README.md
-│  │  ├─ docs/
-│  │  └─ assets/
-│  └─ ooh-ads-optimization/
-│     ├─ README.md
-│     ├─ src/
-│     └─ assets/
-├─ docs/                           # 제안서, 슬라이드, 리포트 템플릿
-├─ .gitignore
-└─ LICENSE (MIT)
-```
-
-### 빠른 시작 (로컬)
-
-```bash
-# 1) 가상환경
-python -m venv .venv && source .venv/bin/activate  # (Windows) .venv\Scripts\activate
-
-# 2) 의존성
-pip install -r requirements.txt
-
-# 3) 프로젝트별 README 안내에 따라 데이터 경로/환경변수 설정 후 실행
-```
-
-### 빠른 시작 (Colab)
-
-* 루트/프로젝트 별 **Colab 버튼**을 눌러 노트북 열기 → Google Drive 마운트 → `data/` 경로 지정 → 셀 순서대로 실행.
-
-### 요구사항
-
-* Python 3.10+
-* (옵션) `graphviz`, `geopandas`는 OS 의존 라이브러리 설치가 필요할 수 있음
-
-### 라이선스
-
-* MIT License · 상업/개인 사용 가능 · 데이터 저작권은 각 원천의 정책을 따릅니다.
-
----
 
 ## `projects/netflix-churn/README.md`
 
@@ -254,8 +195,6 @@ FROM rebuy;
 
 ---
 
-## `projects/ooh-ads-optimization/README.md`
-
 # OOH 옥외광고 최적화 & 입지 점수화
 
 **목표**: 서울 425개 행정동의 **인구/소비/시설/점포**를 통합해 \*\*광고효율 점수(0–100)\*\*를 산출,
@@ -266,53 +205,15 @@ FROM rebuy;
 * `LOCAL_PEOPLE_DONG.csv`, 생활인구/이동, 소득/소비, 집객시설(학교/병원/교통), 점포(음식/카페/의류/미용/자동차 등)
 * 전처리 가이드: 0–6시/60세+ 제외, 결측 보정, 월평균 변환, 행정동 매핑
 
-## 2. 점수화 모델(코드1 개념 반영)
+## 2. 점수화 모델
 
 * 가중치 예: **인구 40 / 소비 10 / 시설 20 / 점포 30 (=100)**
 * 스케일링→가중합→정규화(0–100) → 타깃 가중치(선택)
 
-```python
-# projects/ooh-ads-optimization/src/score.py
-import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-
-def compute_score(df, weights=None):
-    weights = weights or {"pop":40, "spend":10, "facility":20, "shops":30}
-    cols = list(weights)
-    scaler = MinMaxScaler()
-    z = scaler.fit_transform(df[cols])
-    base = (z * [weights[c] for c in cols]).sum(axis=1) / sum(weights.values())
-    return (base - base.min()) / (base.max()-base.min()) * 100
-
-if __name__ == "__main__":
-    df = pd.read_csv("./data/ooh/merged_features.csv")
-    df["score"] = compute_score(df)
-    df.to_csv("./projects/ooh-ads-optimization/assets/scored.csv", index=False)
-    print("saved -> assets/scored.csv")
-```
-
 ## 3. 지도 시각화(예시)
 
-```python
-# projects/ooh-ads-optimization/src/map.py
-import folium, pandas as pd, json
+<img width="985" height="723" alt="image" src="https://github.com/user-attachments/assets/11bb4766-73ad-48fe-a531-fdc720395fd0" />
 
-gdf = pd.read_csv("./projects/ooh-ads-optimization/assets/scored.csv")
-# geojson: 행정동 경계 (별도 공급)
-with open("./data/ooh/seoul_dong.geojson","r",encoding="utf-8") as f:
-    gj = json.load(f)
-
-m = folium.Map(location=[37.564,126.977], zoom_start=11)
-folium.Choropleth(
-    geo_data=gj,
-    data=gdf,
-    columns=["dong_code","score"],
-    key_on="feature.properties.dong_code",
-    fill_opacity=0.7, line_opacity=0.2, legend_name="OOH Score"
-).add_to(m)
-
-m.save("./projects/ooh-ads-optimization/assets/map.html")
-```
 
 ## 4. 캠페인 전략 연결(요약)
 
