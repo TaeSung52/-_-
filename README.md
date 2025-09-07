@@ -18,7 +18,7 @@
 
 ### 환경/모델/툴
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue) ![pandas](https://img.shields.io/badge/pandas-EDA-informational) ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange) ![XGBoost](https://img.shields.io/badge/XGBoost-classifier-critical) ![Surprise](https://img.shields.io/badge/Surprise-Recommender-success) ![Selenium](https://img.shields.io/badge/Selenium-crawling-lightgrey) ![GeoPandas](https://img.shields.io/badge/GeoPandas-Geo-green) ![Folium](https://img.shields.io/badge/Folium-map-brightgreen)
+![Python](https://img.shields.io/badge/Python-3.10+-blue) ![pandas](https://img.shields.io/badge/pandas-EDA-informational) ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange) ![XGBoost](https://img.shields.io/badge/XGBoost-classifier-critical) ![Surprise](https://img.shields.io/badge/Surprise-Recommender-success) ![Selenium](https://img.shields.io/badge/Selenium-crawling-lightgrey) ! ![Folium](https://img.shields.io/badge/Folium-map-brightgreen)
 
 ## `projects/netflix-churn/README.md`
 
